@@ -44,7 +44,7 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
+  /** Find all companies. If valid filters are passed will find all companies that pass filters.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */

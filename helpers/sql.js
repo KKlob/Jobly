@@ -19,10 +19,8 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-// write helper function to create WHERE string based on filters passed in.
-// specifc to /companies with query strings name, minEmployees, maxEmployees may be present
-
 /** returns WHERE sql statment as a single string for Company.findAll() */
+
 function sqlForCompanyFilters(filters) {
   let nameStr = undefined;
   let minMaxStr = undefined;
@@ -40,7 +38,6 @@ function sqlForCompanyFilters(filters) {
   } else if (filters.maxEmployees) {
     minMaxStr = `num_employees <= ${filters.maxEmployees} `
   }
-
 
   // build complete WHERE statement and return it.
   let whereStr = "WHERE ";
