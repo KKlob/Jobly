@@ -1,4 +1,4 @@
-const { sqlForPartialUpdate } = require('./sql');
+const { sqlForPartialUpdate, sqlForCompanyFilters } = require('./sql');
 
 describe("Test sql helper", function () {
 
@@ -18,4 +18,14 @@ describe("Test sql helper", function () {
         expect(result.values).toEqual(['Alyia', 32]);
     });
 
+    test("Test sqlForCompanyFilters", function () {
+        let filters = {
+            name: 'c2',
+            minEmployees: 2,
+            maxEmployees: 3
+        }
+        const result = sqlForCompanyFilters(filters);
+
+        expect(result).toEqual("WHERE lower(name) LIKE lower('%c2%') AND num_employees >= 2 AND num_employees <= 3 ");
+    });
 });

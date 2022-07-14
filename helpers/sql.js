@@ -19,4 +19,40 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-module.exports = { sqlForPartialUpdate };
+// write helper function to create WHERE string based on filters passed in.
+// specifc to /companies with query strings name, minEmployees, maxEmployees may be present
+
+/** returns WHERE sql statment as a single string for Company.findAll() */
+function sqlForCompanyFilters(filters) {
+  let nameStr = undefined;
+  let minMaxStr = undefined;
+  // for each expected key, if present, create a str vairable and prepare it's filter
+  if (filters.name) {
+    nameStr = `lower(name) LIKE lower('%${filters.name}%') `
+  }
+  if (filters.minEmployees && filters.maxEmployees) {
+    if (filters.minEmployees > filters.maxEmployees) {
+      throw new BadRequestError("minEmployees cannot be less than maxEmployees");
+    }
+    minMaxStr = `num_employees >= ${filters.minEmployees} AND num_employees <= ${filters.maxEmployees} `
+  } else if (filters.minEmployees) {
+    minMaxStr = `num_employees >= ${filters.minEmployees} `
+  } else if (filters.maxEmployees) {
+    minMaxStr = `num_employees <= ${filters.maxEmployees} `
+  }
+
+
+  // build complete WHERE statement and return it.
+  let whereStr = "WHERE ";
+  if (nameStr && minMaxStr) {
+    whereStr += nameStr + "AND " + minMaxStr;
+  } else if (nameStr) {
+    whereStr += nameStr;
+  } else if (minMaxStr) {
+    whereStr += minMaxStr;
+  }
+
+  return (whereStr);
+}
+
+module.exports = { sqlForPartialUpdate, sqlForCompanyFilters };
