@@ -71,7 +71,6 @@ router.get("/", ensureLoggedIn, ensureIsAdmin, async function (req, res, next) {
 router.get("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     // check if logged in user is admin or matches the user being requested
-    // if not, return unauth error
     console.log("Does locals.user.username == params.username? :", (res.locals.user.username == req.params.username));
     if (!(req.params.username == res.locals.user.username) && !res.locals.user.isAdmin) {
       throw new UnauthorizedError();
@@ -97,7 +96,6 @@ router.get("/:username", ensureLoggedIn, async function (req, res, next) {
 router.patch("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     // check if logged in user is admin or matches the user being requested
-    // if not, return unauth error
     if (!res.locals.user.isAdmin && !(res.locals.user.username == req.params.username)) {
       throw new UnauthorizedError();
     }
@@ -124,7 +122,6 @@ router.patch("/:username", ensureLoggedIn, async function (req, res, next) {
 router.delete("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     // check if logged in user is admin or matches the user being requested
-    // if not, return unauth error
     if (!res.locals.user.isAdmin && !(res.locals.user.username == req.params.username)) {
       throw new UnauthorizedError();
     }
