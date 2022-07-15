@@ -13,7 +13,8 @@ const {
   commonAfterAll,
   u1Token,
   u2Token,
-  j1
+  j1,
+  j2
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -132,7 +133,7 @@ describe("POST /users", function () {
 
 describe("POST /users/:username/jobs/:id", function () {
   test("works for user w/ admin", async function () {
-    const job = await j1();
+    const job = await j2();
     const resp = await request(app)
       .post(`/users/u1/jobs/${job.id}`)
       .send({
@@ -207,6 +208,8 @@ describe("POST /users/:username/jobs/:id", function () {
 
 describe("GET /users", function () {
   test("works for users w/ admin", async function () {
+    const job1 = await j1();
+    const job2 = await j2();
     const resp = await request(app)
       .get("/users")
       .set("authorization", `Bearer ${u1Token}`);
@@ -218,6 +221,7 @@ describe("GET /users", function () {
           lastName: "U1L",
           email: "user1@user.com",
           isAdmin: true,
+          jobs: [job1.id]
         },
         {
           username: "u2",
@@ -225,6 +229,7 @@ describe("GET /users", function () {
           lastName: "U2L",
           email: "user2@user.com",
           isAdmin: false,
+          jobs: [job2.id]
         },
         {
           username: "u3",
@@ -232,6 +237,7 @@ describe("GET /users", function () {
           lastName: "U3L",
           email: "user3@user.com",
           isAdmin: false,
+          jobs: []
         },
       ],
     });
@@ -267,6 +273,7 @@ describe("GET /users", function () {
 
 describe("GET /users/:username", function () {
   test("works for users w/ admin", async function () {
+    const job1 = await j1();
     const resp = await request(app)
       .get(`/users/u1`)
       .set("authorization", `Bearer ${u1Token}`);
@@ -277,11 +284,13 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: true,
+        jobs: [job1.id]
       },
     });
   });
 
   test("works for users that matches /users/:username", async function () {
+    const job = await j2();
     const resp = await request(app)
       .get("/users/u2")
       .set("authorization", `Bearer ${u2Token}`);
@@ -293,6 +302,7 @@ describe("GET /users/:username", function () {
         lastName: "U2L",
         email: "user2@user.com",
         isAdmin: false,
+        jobs: [job.id]
       },
     });
   });

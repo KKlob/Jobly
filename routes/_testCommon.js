@@ -7,6 +7,9 @@ const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
 const { JsonWebTokenError } = require("jsonwebtoken");
 
+const u1Token = createToken({ username: "u1", isAdmin: true });
+const u2Token = createToken({ username: "u2", isAdmin: false });
+
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM users");
@@ -66,18 +69,20 @@ async function commonBeforeAll() {
     password: "password3",
     isAdmin: false,
   });
-  await Job.create({
+  const job1 = await Job.create({
     title: "j1",
     salary: 60000,
     equity: 0.05,
     companyHandle: 'c1'
   });
-  await Job.create({
+  const job2 = await Job.create({
     title: 'j2',
     salary: 80000,
     equity: 0.07,
     companyHandle: 'c2'
   });
+  await User.apply('u1', job1.id);
+  await User.apply('u2', job2.id);
 }
 
 async function commonBeforeEach() {
@@ -105,9 +110,6 @@ const j2 = async function () {
                               WHERE title = 'j2'`);
   return job.rows[0];
 }
-
-const u1Token = createToken({ username: "u1", isAdmin: true });
-const u2Token = createToken({ username: "u2", isAdmin: false })
 
 
 module.exports = {
