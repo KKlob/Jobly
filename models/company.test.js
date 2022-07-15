@@ -9,6 +9,8 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  j1,
+  j2,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -132,6 +134,8 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("works", async function () {
+    const job1 = await j1();
+    delete job1.companyHandle;
     let company = await Company.get("c1");
     expect(company).toEqual({
       handle: "c1",
@@ -139,6 +143,7 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [job1]
     });
   });
 
