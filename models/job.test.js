@@ -40,6 +40,7 @@ describe("create a job", function () {
             WHERE title = 'newJob'`
         );
         expect(result.rows).toEqual([newJob]);
+        console.log(result.rows[0]);
     });
 
     test("bad request with salary < 0 || equity > 1.0", async function () {
@@ -91,7 +92,7 @@ describe("findAll jobs", function () {
 
 describe("get a job", function () {
     test("works", async function () {
-        const jobRes = await db.query(`SELECT id, title, salary, equity, company_handle AS companyHandle FROM jobs WHERE title = 'j1'`);
+        const jobRes = await db.query(`SELECT id, title, salary, equity, company_handle AS "companyHandle" FROM jobs WHERE title = 'j1'`);
 
         const baseJob = jobRes.rows[0];
 
