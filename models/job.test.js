@@ -2,7 +2,6 @@
 
 const db = require("../db.js");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForCompanyFilters } = require("../helpers/sql.js");
 const Job = require('./job');
 const {
     commonBeforeAll,
@@ -79,13 +78,37 @@ describe("findAll jobs", function () {
         expect(jobs).toEqual([j1Res.rows[0], j2Res.rows[0]]);
     });
 
-    // test("works: filter for name, minEmployees, maxEmployees", async function () {
+    test("works: filter for title, minSalary, hasEquity", async function () {
+        const j1Res = await db.query(`SELECT id, title, salary, equity, company_handle AS "companyHandle" 
+                                        FROM jobs
+                                        WHERE title = 'j1'`);
+        let filters = {
+            title: 'j1',
+            minSalary: 40000,
+            hasEquity: true
+        }
 
-    // });
+        let jobs = await Job.findAll(filters);
+        expect(jobs).toEqual([j1Res.rows[0]]);
+    });
 
-    // test("bad request - invalid salary / equity", async function () {
+    test("works: filter for minSalary", async function () {
+        const j2Res = await db.query(`SELECT id, title, salary, equity, company_handle AS "companyHandle" 
+                                        FROM jobs
+                                        WHERE title = 'j2'`);
 
-    // });
+        let jobs = await Job.findAll({ minSalary: 70000 });
+        expect(jobs).toEqual([j2Res.rows[0]]);
+    });
+
+    test("bad request - invalid minSalary", async function () {
+        try {
+            let jobs = await Job.findAll({ minSalary: -500 });
+            fail();
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
 });
 
 /************************************** get */

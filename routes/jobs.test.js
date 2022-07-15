@@ -93,9 +93,24 @@ describe("GET /jobs", function () {
         });
     });
 
-    // test("ok for filtering ", async function () {
+    test("ok for filtering - all filters passed", async function () {
+        const resp = await request(app).get("/jobs?title=j1&minSalary=40000&hasEquity=true");
+        expect(resp.body).toEqual({
+            jobs: [await j1()]
+        });
+    });
 
-    // });
+    test("ok for filtering - minSalary filter passed", async function () {
+        const resp = await request(app).get("/jobs?minSalary=70000");
+        expect(resp.body).toEqual({
+            jobs: [await j2()]
+        });
+    });
+
+    test("Bad request - invalid minSalary filter passed", async function () {
+        const resp = await request(app).get("/jobs?minSalary=-500");
+        expect(resp.statusCode).toEqual(400);
+    });
 
     test("fails: test next() handler", async function () {
         // there's no normal failure event which will cause this route to fail ---

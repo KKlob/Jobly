@@ -52,11 +52,11 @@ router.post("/", ensureLoggedIn, ensureIsAdmin, async function (req, res, next) 
 
 router.get("/", async function (req, res, next) {
     try {
-        // let filters;
-        // if (req.query.name || req.query.minEmployees || req.query.maxEmployees) {
-        //     filters = req.query;
-        // }
-        const jobs = await Job.findAll();
+        let filters;
+        if (req.query.title || req.query.minSalary || req.query.hasEquity) {
+            filters = req.query;
+        }
+        const jobs = await Job.findAll(filters);
         return res.json({ jobs });
     } catch (err) {
         return next(err);

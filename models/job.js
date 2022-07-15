@@ -2,7 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForJobFilters } = require("../helpers/sql");
 
 /** Related functions for jobs. */
 
@@ -31,15 +31,22 @@ class Job {
         return job;
     }
 
-    /** Find all jobs.
+    /** Find all jobs. if valid filters are passed will find all jobs that pass filters
      *
      * Returns [{ id, title, salary, equity, companyHandle }, ...]
      * */
 
-    static async findAll() {
+    static async findAll(filters = undefined) {
+        //filters are title, minSalary, hasEquity
+        let whereStr;
+        if (filters) {
+            whereStr = sqlForJobFilters(filters);
+        }
+
         const jobsRes = await db.query(
             `SELECT id, title, salary, equity, company_handle AS "companyHandle"
-           FROM jobs
+           FROM jobs 
+           ${whereStr ? whereStr : ""}
            ORDER BY id`);
         return jobsRes.rows;
     }

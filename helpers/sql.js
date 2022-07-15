@@ -52,4 +52,42 @@ function sqlForCompanyFilters(filters) {
   return (whereStr);
 }
 
-module.exports = { sqlForPartialUpdate, sqlForCompanyFilters };
+/** returns WHERE sql statment as a single string for Job.findAll() */
+
+function sqlForJobFilters(filters) {
+  let titleStr = undefined;
+  let minSalStr = undefined;
+  let equityStr = undefined;
+  // for each expected key, if present, create a str variable and prepare it's filter
+  if (filters.title) {
+    titleStr = `lower(title) LIKE lower('%${filters.title}%') `;
+  }
+  if (filters.minSalary) {
+    if (filters.minSalary < 0) {
+      throw new BadRequestError("minSalary cannot be less than 0");
+    }
+    minSalStr = `salary >= ${filters.minSalary} `;
+  }
+  if (filters.hasEquity) {
+    equityStr = `equity IS NOT NULL `;
+  }
+
+  // build complete WHERE statement and return it
+  let whereStr = "WHERE ";
+  let count = 0;
+  [titleStr, minSalStr, equityStr].forEach((item, ind) => {
+    if (item && ind - count == 0) {
+      whereStr += item;
+    } else if (item && ind > 0) {
+      whereStr += "AND " + item;
+    }
+    if (!item) {
+      count++;
+    }
+  });
+
+  return whereStr;
+
+}
+
+module.exports = { sqlForPartialUpdate, sqlForCompanyFilters, sqlForJobFilters };
