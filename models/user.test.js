@@ -12,6 +12,8 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  j1,
+  j2
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -29,7 +31,7 @@ describe("authenticate", function () {
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
-      isAdmin: false,
+      isAdmin: true,
     });
   });
 
@@ -109,6 +111,8 @@ describe("register", function () {
 
 describe("findAll", function () {
   test("works", async function () {
+    const job1 = await j1();
+    const job2 = await j2();
     const users = await User.findAll();
     expect(users).toEqual([
       {
@@ -116,7 +120,8 @@ describe("findAll", function () {
         firstName: "U1F",
         lastName: "U1L",
         email: "u1@email.com",
-        isAdmin: false,
+        isAdmin: true,
+        jobs: [job1.id]
       },
       {
         username: "u2",
@@ -124,8 +129,19 @@ describe("findAll", function () {
         lastName: "U2L",
         email: "u2@email.com",
         isAdmin: false,
+        jobs: [job2.id]
       },
     ]);
+  });
+});
+
+/************************************** apply */
+
+describe("apply", function () {
+  test("works", async function () {
+    const job2 = await j2();
+    const id = await User.apply('u1', job2.id);
+    expect(id).toEqual(job2.id);
   });
 });
 
@@ -133,13 +149,15 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("works", async function () {
+    const job1 = await j1();
     let user = await User.get("u1");
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
-      isAdmin: false,
+      isAdmin: true,
+      jobs: [job1.id]
     });
   });
 
@@ -180,7 +198,7 @@ describe("update", function () {
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
-      isAdmin: false,
+      isAdmin: true,
     });
     const found = await db.query("SELECT * FROM users WHERE username = 'u1'");
     expect(found.rows.length).toEqual(1);
@@ -215,7 +233,7 @@ describe("remove", function () {
   test("works", async function () {
     await User.remove("u1");
     const res = await db.query(
-        "SELECT * FROM users WHERE username='u1'");
+      "SELECT * FROM users WHERE username='u1'");
     expect(res.rows.length).toEqual(0);
   });
 

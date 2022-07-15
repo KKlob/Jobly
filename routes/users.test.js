@@ -12,7 +12,8 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
-  u2Token
+  u2Token,
+  j1
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -23,7 +24,7 @@ afterAll(commonAfterAll);
 /************************************** POST /users */
 
 describe("POST /users", function () {
-  test("works for users: create non-admin", async function () {
+  test("works for user w/ admin: create non-admin", async function () {
     const resp = await request(app)
       .post("/users")
       .send({
@@ -47,7 +48,7 @@ describe("POST /users", function () {
     });
   });
 
-  test("works for users: create admin", async function () {
+  test("works for user w/ admin: create admin", async function () {
     const resp = await request(app)
       .post("/users")
       .send({
@@ -121,6 +122,81 @@ describe("POST /users", function () {
         password: "password-new",
         email: "not-an-email",
         isAdmin: true,
+      })
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(400);
+  });
+});
+
+/**************************************POST /users/:username/jobs/:id */
+
+describe("POST /users/:username/jobs/:id", function () {
+  test("works for user w/ admin", async function () {
+    const job = await j1();
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${job.id}`)
+      .send({
+        username: "u1",
+        jobId: job.id
+      })
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({ applied: job.id });
+  });
+
+  test("works for non-admin user matching :username", async function () {
+    const job = await j1();
+    const resp = await request(app)
+      .post(`/users/u2/jobs/${job.id}`)
+      .send({
+        username: "u2",
+        jobId: job.id
+      })
+      .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({ applied: job.id });
+  });
+
+  test("unauth for non-admin user applying for another user", async function () {
+    const job = await j1();
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${job.id}`)
+      .send({
+        username: "u1",
+        jobId: job.id
+      })
+      .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/99`)
+      .send({
+        username: "u1",
+        jobId: 99
+      });
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("bad request if invalid data - bad username", async function () {
+    const job = await j1();
+    const resp = await request(app)
+      .post(`/users/u7/jobs/${job.id}`)
+      .send({
+        username: "u7",
+        jobId: job.id
+      })
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(400);
+  });
+
+  test("bad request if invalid data - bad job id", async function () {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/99999`)
+      .send({
+        username: "u1",
+        jobId: 99999
       })
       .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(400);

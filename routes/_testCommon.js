@@ -15,6 +15,8 @@ async function commonBeforeAll() {
 
   await db.query("DELETE FROM jobs");
 
+  await db.query("DELETE FROM applications");
+
   await Company.create(
     {
       handle: "c1",
@@ -67,13 +69,13 @@ async function commonBeforeAll() {
   await Job.create({
     title: "j1",
     salary: 60000,
-    equity: "0.05",
+    equity: 0.05,
     companyHandle: 'c1'
   });
   await Job.create({
     title: 'j2',
     salary: 80000,
-    equity: "0.07",
+    equity: 0.07,
     companyHandle: 'c2'
   });
 }

@@ -43,6 +43,30 @@ router.post("/", ensureLoggedIn, ensureIsAdmin, async function (req, res, next) 
   }
 });
 
+/** POST /users/:username/jobs/:jobId => {applied: jobId} 
+ * 
+ * Adds an application for the user for jobId.
+ * Only for admin users or users submitting application for a job themselves
+ * 
+ * Returns a simple object relaying the application submitted successfully
+ * 
+ * Authorization required: Login + (Admin || logged in user == :username)
+*/
+
+router.post("/:username/jobs/:jobId", ensureLoggedIn, async function (req, res, next) {
+  try {
+    // check if logged in user is admin or matches the user being requested
+    if (!(req.params.username == res.locals.user.username) && !res.locals.user.isAdmin) {
+      throw new UnauthorizedError();
+    }
+
+    const applied = await User.apply(req.params.username, req.params.jobId);
+    return res.status(201).json({ applied });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 
 /** GET / => { users: [ {username, firstName, lastName, email }, ... ] }
  *
@@ -71,7 +95,6 @@ router.get("/", ensureLoggedIn, ensureIsAdmin, async function (req, res, next) {
 router.get("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     // check if logged in user is admin or matches the user being requested
-    console.log("Does locals.user.username == params.username? :", (res.locals.user.username == req.params.username));
     if (!(req.params.username == res.locals.user.username) && !res.locals.user.isAdmin) {
       throw new UnauthorizedError();
     }

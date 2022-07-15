@@ -94,7 +94,7 @@ describe("GET /jobs", function () {
     });
 
     test("ok for filtering - all filters passed", async function () {
-        const resp = await request(app).get("/jobs?title=j1&minSalary=40000&hasEquity=true");
+        const resp = await request(app).get("/jobs?title=j1&minSalary=40000&hasEquity=false");
         expect(resp.body).toEqual({
             jobs: [await j1()]
         });
